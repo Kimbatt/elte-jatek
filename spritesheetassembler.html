@@ -76,7 +76,7 @@ function ButtonClick()
     {
         let current = files[i];
         ctx.drawImage(current, offsetX, 0, current.width * ratio, current.height * ratio);
-        offsetX += current.width * ratio;
+        offsetX += Math.ceil(current.width * ratio);
     }
 }
 

@@ -26,12 +26,15 @@ class Player extends fw.Entity
 
         this.body = fw.world.createBody(Player.bodyDef);
         this.body.createFixture(Player.fixtureDef);
-        this.body.setPosition(planck.Vec2(x / PTM, y / PTM));
 
-        this.body.createFixture(Player.attackAreaFixtureDefLeft);
-        this.body.createFixture(Player.attackAreaFixtureDefRight);
+        this.attackLeftFixture = this.body.createFixture(Player.attackAreaFixtureDefLeft);
+        this.attackRightFixture = this.body.createFixture(Player.attackAreaFixtureDefRight);
+
+        this.enemiesInHitRangeLeft = {};
+        this.enemiesInHitRangeRight = {};
 
         this.body.gameobject = this;
+        this.currentlyAttacking = false;
 
         this.setPosition(x, y);
     }
@@ -141,6 +144,10 @@ class Player extends fw.Entity
             {
                 this.animationFrameCount = 0;
                 ++this.animationFrameIndex;
+
+                if (this.animationFrameIndex === 7 && this.animationType === "attack")
+                    this.attack();
+
                 if (this.animationFrameIndex === currentAnimationData.count)
                 {
                     this.animationFrameIndex = 0;
@@ -170,6 +177,16 @@ class Player extends fw.Entity
         this.animationFrameCount = 0;
     }
 
+    attack()
+    {
+        let touchingObjects = (this.lastDirection === -1) ? this.enemiesInHitRangeLeft : this.enemiesInHitRangeRight;
+        for (let id in touchingObjects)
+        {
+            let obj = touchingObjects[id];
+            obj.receiveHit && obj.receiveHit();
+        }
+    }
+
     onCollision(args, other)
     {
         if (this.isOnGround() && this.falling)
@@ -177,6 +194,11 @@ class Player extends fw.Entity
             this.setNewAnimationType("land");
             this.falling = false;
         }
+
+        if (args.m_fixtureA === this.attackLeftFixture || args.m_fixtureB === this.attackRightFixture)
+            this.enemiesInHitRangeLeft[other.gameobject.ID] = other.gameobject;
+        else if (args.m_fixtureA === this.attackRightFixture || args.m_fixtureB === this.attackRightFixture)
+            this.enemiesInHitRangeRight[other.gameobject.ID] = other.gameobject;
     }
 
     onCollisionLeave(args, other)
@@ -184,6 +206,12 @@ class Player extends fw.Entity
         // hogy ne lehessen ugrani zuhanas kozben
         if (!this.isOnGround())
             this.falling = true;
+            
+
+        if (args.m_fixtureA === this.attackLeftFixture || args.m_fixtureB === this.attackRightFixture)
+            delete this.enemiesInHitRangeLeft[other.gameobject.ID];
+        else if (args.m_fixtureA === this.attackRightFixture || args.m_fixtureB === this.attackRightFixture)
+            delete this.enemiesInHitRangeRight[other.gameobject.ID];
     }
 
     isOnGround()
@@ -192,6 +220,11 @@ class Player extends fw.Entity
         do
         {
             let c = contacts.contact;
+            
+            // ezt itt nemtom hogy miert igy mukodik
+            // de kb az a lenyeg hogy ha egy masik dynamic bodyra raugrunk, akkor random hogy 1 vagy -1 lesz a normal
+            if (c.m_fixtureA.m_body.m_type === "dynamic" && c.m_fixtureB.m_body.m_type === "dynamic" && Math.abs(c.m_manifold.localNormal.y) > 0.9)
+                return true;
 
             if (c.m_manifold.localNormal.y === 1)
                 return true;

@@ -38,6 +38,7 @@ fw.Entity = class Entity
 const worldStepInterval = 1 / 60;
 fw.Update = function()
 {
+    fw.destroyedObjects = [];
     fw.FireEvent("update");
 
     fw.world.step(worldStepInterval, 5, 5);
@@ -45,6 +46,13 @@ fw.Update = function()
     fw.DrawBackground();
 
     fw.FireEvent("draw");
+
+    for (let i = 0; i < fw.destroyedObjects.length; ++i)
+    {
+        let currentBody = fw.destroyedObjects[i].body;
+        if (currentBody)
+            fw.world.destroyBody(currentBody);
+    }
 
     if (fw.run)
         window.requestAnimationFrame(fw.Update);
@@ -108,6 +116,17 @@ fw.Subscribe = function(eventType, obj)
     subscribers[obj.ID] = obj;
 }
 
+fw.RemoveEntity = function(entity)
+{
+    for (let ev in entity.constructor.events)
+    {
+        let event = entity.constructor.events[ev];
+        if (fw.subscribers.hasOwnProperty(event))
+            delete fw.subscribers[event][entity.ID];
+    }
+
+    fw.destroyedObjects.push(entity);
+}
 
 fw.keyMap =
 {
@@ -196,8 +215,10 @@ fw.LoadLevel = function(level)
                 currentTileRow[j] = new Tile(j, i);
             else if (char === "d")
                 new Door(j, i);
-            else if (char === "e")
-                new Enemy(j, i);
+            else if (char === "s")
+                new Enemy(j, i, "skeleton");
+            else if (char === "z")
+                new Enemy(j, i, "zombie");
         }
 
         tilemap[i] = currentTileRow;
