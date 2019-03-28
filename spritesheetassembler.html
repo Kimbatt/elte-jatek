@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<style>
+body
+{
+    background: #202020;
+}
+</style>
+</head>
+
+<body>
+<input type="file" accept="image/*" style="color: white;" multiple onchange="FileSelected(this)">
+<br>
+<br>
+<input id="height" type="number" placeholder="height">
+<br>
+<br>
+<button onclick="ButtonClick()">Assemble</button>
+<br>
+<canvas id="canvas"></canvas>
+
+<script>
+
+let files;
+let currentCount = 0;
+let targetCount = 1;
+let totalWidth = 0;
+function FileSelected(input)
+{
+    currentCount = 0;
+    totalWidth = 0;
+    targetCount = input.files.length;
+    files = new Array(targetCount);
+    for (let i = 0; i < targetCount; ++i)
+    {
+        let _i = i;
+        let fr = new FileReader();
+        fr.onload = ev =>
+        {
+            let img = new Image();
+            img.onload = () =>
+            {
+                files[_i] = img;
+                ++currentCount;
+                totalWidth += img.width;
+            };
+            img.src = ev.target.result;
+        };
+        fr.readAsDataURL(input.files[i]);
+    }
+}
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function ButtonClick()
+{
+    if (currentCount !== targetCount)
+        return;
+
+    let targetHeight = document.getElementById("height").value;
+    if (targetHeight === "")
+        targetHeight = files[0].height;
+
+    let ratio = targetHeight / files[0].height;
+    
+    canvas.width = totalWidth * ratio;
+    canvas.height = files[0].height * ratio;
+
+    let offsetX = 0;
+
+    for (let i = 0; i < files.length; ++i)
+    {
+        let current = files[i];
+        ctx.drawImage(current, offsetX, 0, current.width * ratio, current.height * ratio);
+        offsetX += current.width * ratio;
+    }
+}
+
+</script>
+
+</body>
+
+</html>

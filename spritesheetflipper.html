@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<style>
+body
+{
+    background: #202020;
+}
+</style>
+</head>
+
+<body>
+<input type="file" accept="image/*" style="color: white;" onchange="FileSelected(this)">
+<br>
+<br>
+<input id="countX" type="number" placeholder="x count">
+<input id="countY" type="number" placeholder="y count">
+<br>
+<br>
+<button onclick="ButtonClick()">Get flipped image</button>
+<br>
+<canvas id="imageTransformCanvas"></canvas>
+
+<script>
+
+let file;
+function FileSelected(input)
+{
+    let fr = new FileReader();
+    fr.onload = ev =>
+    {
+        file = ev.target.result;
+    };
+    fr.readAsDataURL(input.files[0]);
+}
+
+const imageTransformCanvas = document.getElementById("imageTransformCanvas");
+const imageTransformCtx = imageTransformCanvas.getContext("2d");
+
+function GetFlippedImage(src, countX, countY)
+{
+    let img = new Image();
+    img.onload = () =>
+    {
+        let width = img.width / countX;
+        let height = img.height / countY;
+
+        imageTransformCanvas.width = countX * width;
+        imageTransformCanvas.height = countY * height;
+        imageTransformCtx.save();
+        imageTransformCtx.scale(-1, 1);
+
+        for (let i = 0; i < countX; ++i)
+        {
+            for (let j = 0; j < countY; ++j)
+            {
+                imageTransformCtx.drawImage(img, i * width, j * height, width, height, (-i - 1) * width, j * height, width, height);
+            }
+        }
+
+        imageTransformCtx.restore();
+    }
+    img.src = src;
+}
+
+function ButtonClick()
+{
+    GetFlippedImage(file, document.getElementById("countX").value, document.getElementById("countY").value);
+}
+
+</script>
+
+</body>
+
+</html>
