@@ -171,22 +171,21 @@ let backgroundPattern;
 
 fw.Start = function()
 {
+    backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
+
+    fw.LoadLevel(0);
+}
+
+fw.currentLevel = 0;
+fw.LoadLevel = function(level)
+{
     fw.run = true;
     fw.Entity.ID = 0;
     fw.Entities = {};
     fw.subscribers = {};
     fw.InitWorld();
+    fw.Player = new Player();
 
-    backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
-
-    fw.Player = new Player(100, 100);
-    fw.LoadLevel(0);
-
-    fw.Update();
-}
-
-fw.LoadLevel = function(level)
-{
     if (Tile.tilemap)
     {
         for (let i = 0; i < Tile.tilemap.length; ++i)
@@ -209,16 +208,21 @@ fw.LoadLevel = function(level)
         for (let j = 0; j < currentRow.length; ++j)
         {
             const char = currentRow[j];
-            if (char === " ")
-                continue;
-            else if (char === "x")
-                currentTileRow[j] = new Tile(j, i);
-            else if (char === "d")
-                new Door(j, i);
-            else if (char === "s")
-                new Enemy(j, i, "skeleton");
-            else if (char === "z")
-                new Enemy(j, i, "zombie");
+            switch (char)
+            {
+                case "x":
+                    currentTileRow[j] = new Tile(j, i);
+                    break;
+                case "d":
+                    new Door(j, i);
+                    break;
+                case "s":
+                    new Enemy(j, i, "skeleton");
+                    break;
+                case "z":
+                    new Enemy(j, i, "zombie");
+                    break;
+            }
         }
 
         tilemap[i] = currentTileRow;
@@ -235,7 +239,11 @@ fw.LoadLevel = function(level)
         }
     }
 
+    fw.currentLevel = level;
     fw.Player.setPosition(playerStartPositions[level][0], playerStartPositions[level][1]);
+    
+
+    fw.Update();
 }
 
 fw.ImageLoaded = function()
@@ -316,8 +324,29 @@ fw.FinishLevel = function()
         return;
     
     fw.Shutdown();
-    
-    document.getElementById("level-finished-overlay").className = "level-finished-overlay-visible";
+    let overlayDiv = document.getElementById("level-finished-overlay");
+    ++fw.currentLevel;
+    if (fw.currentLevel < 3)
+    {
+        overlayDiv.innerText = "Level complete!";
+        window.setTimeout(function()
+        {
+            overlayDiv.className = "level-finished-overlay-hidden";
+            fw.LoadLevel(fw.currentLevel);
+        }, 2000);
+    }
+    else
+    {
+        overlayDiv.innerText = "All levels complete!";
+        window.setTimeout(function()
+        {
+            document.getElementById("menu").style.display = "flex";
+            document.getElementById("game").style.display = "none";
+            overlayDiv.className = "level-finished-overlay-hidden";
+        }, 2000);
+    }
+
+    overlayDiv.className = "level-finished-overlay-visible";
 }
 
 fw.Shutdown = function()

@@ -25,10 +25,13 @@ class Player extends fw.Entity
         this.falling = false;
 
         this.body = fw.world.createBody(Player.bodyDef);
-        this.body.createFixture(Player.fixtureDef);
+        let playerBodyFixture = this.body.createFixture(Player.fixtureDef);
+        playerBodyFixture.name = "playerBodyFixture";
 
         this.attackLeftFixture = this.body.createFixture(Player.attackAreaFixtureDefLeft);
+        this.attackLeftFixture.name = "attackLeftFixture";
         this.attackRightFixture = this.body.createFixture(Player.attackAreaFixtureDefRight);
+        this.attackRightFixture.name = "attackRightFixture";
 
         this.enemiesInHitRangeLeft = {};
         this.enemiesInHitRangeRight = {};
@@ -36,7 +39,7 @@ class Player extends fw.Entity
         this.body.gameobject = this;
         this.currentlyAttacking = false;
 
-        this.setPosition(x, y);
+        //this.setPosition(x, y);
     }
 
     setPosition(x, y)

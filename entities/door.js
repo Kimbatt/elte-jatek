@@ -22,7 +22,10 @@ class Door extends fw.Entity
     onCollision(args, other)
     {
         if (other.gameobject === fw.Player)
-            fw.FinishLevel();
+        {
+            if (args.m_fixtureA.name === "playerBodyFixture" || args.m_fixtureB.name === "playerBodyFixture")
+                fw.FinishLevel();
+        }
     }
 
     draw()

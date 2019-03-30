@@ -88,6 +88,7 @@ class Enemy extends fw.Entity
         {
             this.setNewAnimationType("die");
             this.flash = false;
+            fw.destroyedObjects.push(this);
             return;
         }
 
