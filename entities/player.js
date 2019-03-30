@@ -4,6 +4,7 @@ class Player extends fw.Entity
     constructor(x, y)
     {
         super(x, y);
+        // animáció spritesheetek beállítása
         this.sprite_idleLeft = fw.sprites["sprites/anim/idle/idle.png"];
         this.sprite_idleRight = fw.sprites["sprites/anim/idle/idle_right.png"];
         this.sprite_runLeft = fw.sprites["sprites/anim/run/run.png"];
@@ -17,6 +18,7 @@ class Player extends fw.Entity
         this.sprite_attackLeft = fw.sprites["sprites/anim/attack/attack.png"];
         this.sprite_attackRight = fw.sprites["sprites/anim/attack/attack_right.png"];
 
+        // animációval kapcsolatos változók
         this.animationFrameIndex = 0;
         this.animationFrameCount = 0;
         this.animationType = "idle";
@@ -24,6 +26,7 @@ class Player extends fw.Entity
         this.lastDirection = 1;
         this.falling = false;
 
+        // fizikai objektumok beállítása
         this.body = fw.world.createBody(Player.bodyDef);
         let playerBodyFixture = this.body.createFixture(Player.fixtureDef);
         playerBodyFixture.name = "playerBodyFixture";
@@ -38,10 +41,9 @@ class Player extends fw.Entity
 
         this.body.gameobject = this;
         this.currentlyAttacking = false;
-
-        //this.setPosition(x, y);
     }
 
+    // a játékos pozícióját beállítja
     setPosition(x, y)
     {
         this.body.setPosition(planck.Vec2(x / PTM, y / PTM));
@@ -55,6 +57,7 @@ class Player extends fw.Entity
         let spriteIndexX = this.animationFrameIndex % currentAnimationData.countX;
         let spriteIndexY = (this.animationFrameIndex / currentAnimationData.countX) | 0;
 
+        // megfelelő spritesheet és azon belüli pozíció kiválasztása
         let currentSpriteSheet = this["sprite_" + this.animationType + ((this.lastDirection == -1) ? "Left" : "Right")];
 
         let offsetX = ((this.lastDirection == -1) ? currentAnimationData.offsetXLeft : currentAnimationData.offsetXRight) * this.lastDirection;
@@ -99,6 +102,7 @@ class Player extends fw.Entity
 
         let newAnimationType = this.animationType;
         
+        // jelenlegi animáció típus megváltoztatása, ha szükséges
         switch (this.animationType)
         {
             case "idle":
@@ -136,6 +140,7 @@ class Player extends fw.Entity
         if (attack && (newAnimationType === "idle" || newAnimationType === "run"))
             newAnimationType = "attack";
 
+        // animáció frissítése
         let currentAnimationData = Player.animationData[newAnimationType];
         let animationOverride = false;
         if (this.animationType !== newAnimationType)
@@ -164,6 +169,7 @@ class Player extends fw.Entity
 
         this.body.setLinearVelocity(planck.Vec2(velocityX, velocityY === 0 ? currentVelocity.y : velocityY));
 
+        // kamera pozíció frissítése
         let worldpos = this.body.getPosition();
         let targetx = worldpos.x * PTM - canvas.width * 0.5 + 128;
         let targety = worldpos.y * PTM - canvas.height * 0.5 + 128;
@@ -180,6 +186,7 @@ class Player extends fw.Entity
         this.animationFrameCount = 0;
     }
 
+    // támadás; ha van ellenség a közelben, akkor az megsérül
     attack()
     {
         let touchingObjects = (this.lastDirection === -1) ? this.enemiesInHitRangeLeft : this.enemiesInHitRangeRight;
@@ -190,6 +197,7 @@ class Player extends fw.Entity
         }
     }
 
+    // ütközés eseménykezelő
     onCollision(args, other)
     {
         if (this.isOnGround() && this.falling)
@@ -204,19 +212,20 @@ class Player extends fw.Entity
             this.enemiesInHitRangeRight[other.gameobject.ID] = other.gameobject;
     }
 
+    // ütközés elhagyása eseménykezelő
     onCollisionLeave(args, other)
     {
         // hogy ne lehessen ugrani zuhanas kozben
         if (!this.isOnGround())
             this.falling = true;
             
-
         if (args.m_fixtureA === this.attackLeftFixture || args.m_fixtureB === this.attackRightFixture)
             delete this.enemiesInHitRangeLeft[other.gameobject.ID];
         else if (args.m_fixtureA === this.attackRightFixture || args.m_fixtureB === this.attackRightFixture)
             delete this.enemiesInHitRangeRight[other.gameobject.ID];
     }
 
+    // a játékos éppen a földön (vagy sík felületen) van-e
     isOnGround()
     {
         let contacts = this.body.getContactList();
@@ -241,6 +250,7 @@ class Player extends fw.Entity
 
 Player.events = ["draw", "update"];
 
+// animáció adatok
 Player.animationData =
 {
     "idle":
@@ -339,6 +349,7 @@ Player.animationData =
 
 (() =>
 {
+    // játékos fizikai objektumának létrehozása
     let bodyWidth = 100;
     const bodyHeight = 240;
     let offsetX = (256 - bodyWidth) * 0.5 / PTM;

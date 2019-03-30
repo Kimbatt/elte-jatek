@@ -2,6 +2,7 @@
 
 window.oncontextmenu = () => false;
 
+// ez a függvény indítja a játékot, a new game gombra kattintva
 function StartGame()
 {
     document.getElementById("menu").style.display = "none";
@@ -37,6 +38,7 @@ function ExitToMenu()
     document.getElementById("game").style.display = "none";
 }
 
+// pályák
 const levels =
 [
 `
@@ -146,6 +148,7 @@ xxxxxxx              xxxxxxxxxxxxxxxx
    xxxxxxxxxxxxxxxxxx`
 ];
 
+// a játékos kiinduló pozíciója az adott pályákon
 const playerStartPositions =
 [
     [1400, 1280],

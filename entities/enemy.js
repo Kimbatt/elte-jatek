@@ -4,6 +4,8 @@ class Enemy extends fw.Entity
     constructor(x, y, type)
     {
         super(x, y);
+
+        // megfelelő spritesheetek kiválasztása
         this.sprite_idleLeft = fw.sprites["sprites/" + type + "/idle/idle.png"];
         this.sprite_idleRight = fw.sprites["sprites/" + type + "/idle/idle_right.png"];
         this.sprite_dieLeft = fw.sprites["sprites/" + type + "/die/die.png"];
@@ -21,7 +23,7 @@ class Enemy extends fw.Entity
 
         this.body.gameobject = this;
 
-        // ha megutik akkor villog egy ideig
+        // ha megütik akkor villog egy ideig
         this.flash = false;
 
         this.health = 3;
@@ -29,6 +31,7 @@ class Enemy extends fw.Entity
 
     draw()
     {
+        // villogás esetén nem mindig van kirajzolva
         if (this.flash)
         {
             let frame = (this.flashDuration / hitFlashInterval) | 0;
@@ -40,6 +43,7 @@ class Enemy extends fw.Entity
         let spriteIndexX = this.animationFrameIndex % currentAnimationData.countX;
         let spriteIndexY = (this.animationFrameIndex / currentAnimationData.countX) | 0;
 
+        // megfelelő sprite és animációk kiválasztása
         let currentSpriteSheet = this["sprite_" + this.animationType + ((this.lastDirection == -1) ? "Left" : "Right")];
 
         let offsetX = ((this.lastDirection == -1) ? currentAnimationData.offsetXLeft : currentAnimationData.offsetXRight) * this.lastDirection;
@@ -55,6 +59,7 @@ class Enemy extends fw.Entity
 
     update()
     {
+        // animáció frissítése
         let currentAnimationData = Enemy.animationData[this.animationType];
         ++this.animationFrameCount;
         if (this.animationFrameCount === currentAnimationData.frameDuration)
@@ -82,6 +87,7 @@ class Enemy extends fw.Entity
         this.animationFrameCount = 0;
     }
 
+    // ez a függvény hívódik meg, ha megütik
     receiveHit()
     {
         if (--this.health === 0)
@@ -99,6 +105,7 @@ class Enemy extends fw.Entity
 
 Enemy.events = ["draw", "update"];
 
+// animáció adatok
 Enemy.animationData =
 {
     "idle":
@@ -134,6 +141,7 @@ Enemy.animationData =
 
 (() =>
 {
+    // fizikai objektum létrehozása
     let bodyWidth = 100;
     const bodyHeight = 240;
     let offsetX = (256 - bodyWidth) * 0.5 / PTM;

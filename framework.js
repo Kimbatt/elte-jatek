@@ -3,6 +3,7 @@ const fw = {};
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+// külön canvas van a háttérnek
 const backgroundCanvas = document.getElementById("background-canvas");
 const backgroundCtx = backgroundCanvas.getContext("2d");
 
@@ -18,6 +19,7 @@ fw.WindowResized = function()
 window.addEventListener("load", fw.WindowResized);
 window.addEventListener("resize", fw.WindowResized);
 
+// entitás ősosztály
 fw.Entity = class Entity
 {
     constructor(x, y, width, height)
@@ -36,9 +38,13 @@ fw.Entity = class Entity
 };
 
 const worldStepInterval = 1 / 60;
+// ez a függvény hívódik meg másodpercenként 60-szor
 fw.Update = function()
 {
+    // fizikai objektumok; mivel a fizikai világ frissítése közben nem lehet törölni őket,
+    // ezért egy listában tároljuk, és a frissítés után töröljük
     fw.destroyedObjects = [];
+
     fw.FireEvent("update");
 
     fw.world.step(worldStepInterval, 5, 5);
@@ -58,10 +64,12 @@ fw.Update = function()
         window.requestAnimationFrame(fw.Update);
 }
 
+// a háttér kirajzolása
 fw.DrawBackground = function()
 {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // a háttér el van tolva az előtérhez képest, hogy parallax hatású legyen
     const backgroundSizeX = 1024, backgroundSizeY = 1024;
     const parallaxMultiplier = 0.25;
     backgroundCtx.fillStyle = backgroundPattern;
@@ -79,6 +87,7 @@ fw.DrawBackground = function()
     backgroundCtx.restore();
 }
 
+// ez a függvény megadja, hogy egy objektum a képernyőn van-e (tehát hogy ki kell-e rajzolni)
 fw.IsOnScreen = function(x, y, width, height)
 {
     const startX = fw.cameraPositionX - width, endX = startX + canvas.width + width;
@@ -90,6 +99,7 @@ fw.IsOnScreen = function(x, y, width, height)
     return true;
 }
 
+// egy adott eseményre meghívja az összes feliratkozott entitás megfelelő függvényét
 fw.FireEvent = function(ev, args)
 {
     if (!fw.subscribers.hasOwnProperty(ev))
@@ -102,6 +112,7 @@ fw.FireEvent = function(ev, args)
     }
 }
 
+// ennek a függvénynek a segítségével egy entitás feliratkozhat egy eseményre
 fw.Subscribe = function(eventType, obj)
 {
     let subscribers;
@@ -116,6 +127,7 @@ fw.Subscribe = function(eventType, obj)
     subscribers[obj.ID] = obj;
 }
 
+// entitás törlése
 fw.RemoveEntity = function(entity)
 {
     for (let ev in entity.constructor.events)
@@ -128,6 +140,7 @@ fw.RemoveEntity = function(entity)
     fw.destroyedObjects.push(entity);
 }
 
+// billentyűzet információ
 fw.keyMap =
 {
     "up": false,
@@ -137,7 +150,7 @@ fw.keyMap =
     "space": false
 };
 
-
+// a gomb lenyomás/felengedés esemény kezelése
 fw.KeyStateChanged = function(key, state)
 {
     switch (key)
@@ -177,6 +190,7 @@ fw.Start = function()
 }
 
 fw.currentLevel = 0;
+// pálya betöltése
 fw.LoadLevel = function(level)
 {
     fw.run = true;
@@ -186,6 +200,7 @@ fw.LoadLevel = function(level)
     fw.InitWorld();
     fw.Player = new Player();
 
+    // régi tilemap törlése, ha van
     if (Tile.tilemap)
     {
         for (let i = 0; i < Tile.tilemap.length; ++i)
@@ -199,6 +214,7 @@ fw.LoadLevel = function(level)
         }
     }
 
+    // pálya feldolgozása
     let tilesRows = levels[level].split("\n");
     let tilemap = [];
     for (let i = 0; i < tilesRows.length; ++i)
@@ -241,7 +257,6 @@ fw.LoadLevel = function(level)
 
     fw.currentLevel = level;
     fw.Player.setPosition(playerStartPositions[level][0], playerStartPositions[level][1]);
-    
 
     fw.Update();
 }
@@ -256,6 +271,8 @@ fw.sprites = {};
 
 fw.targetLoadCount = 0;
 fw.loadedCount = 0;
+
+// képek betöltése, ha az összes kép betöltődött, akkor indul a játék
 fw.LoadImages = function(images)
 {
     fw.targetLoadCount += images.length;
@@ -290,9 +307,12 @@ fw.Box = function(w, h)
 
 const PTM = 30;
 
+// fizikai világ létrehozása
 fw.InitWorld = function()
 {
     fw.world = new planck.World(new planck.Vec2(0, 150));
+
+    // ütközés események
     fw.world.on("begin-contact", e =>
     {
         let object1 = e.m_fixtureA.m_body.gameobject;
@@ -318,6 +338,7 @@ fw.InitWorld = function()
     });
 }
 
+// ha egy pálya végére értünk
 fw.FinishLevel = function()
 {
     if (!fw.run)
@@ -328,6 +349,7 @@ fw.FinishLevel = function()
     ++fw.currentLevel;
     if (fw.currentLevel < 3)
     {
+        // ha van még pálya
         overlayDiv.innerText = "Level complete!";
         window.setTimeout(function()
         {
@@ -337,6 +359,7 @@ fw.FinishLevel = function()
     }
     else
     {
+        // ha az összes pályát megcsináltuk
         overlayDiv.innerText = "All levels complete!";
         window.setTimeout(function()
         {
@@ -349,6 +372,7 @@ fw.FinishLevel = function()
     overlayDiv.className = "level-finished-overlay-visible";
 }
 
+// leállítja a futást
 fw.Shutdown = function()
 {
     fw.run = false;

@@ -21,6 +21,7 @@ class Door extends fw.Entity
 
     onCollision(args, other)
     {
+        // ha a player odaért az ajtóhoz, akkor vége a pályának
         if (other.gameobject === fw.Player)
         {
             if (args.m_fixtureA.name === "playerBodyFixture" || args.m_fixtureB.name === "playerBodyFixture")
@@ -33,6 +34,7 @@ class Door extends fw.Entity
         if (!fw.IsOnScreen(this.posX, this.posY, 256, 384))
             return;
 
+        // az ajtót hátulra rajzoljuk
         ctx.globalCompositeOperation = "destination-over";
         ctx.drawImage(this.sprite, (this.posX - fw.cameraPositionX) | 0, (this.posY - fw.cameraPositionY) | 0);
         ctx.globalCompositeOperation = "source-over";

@@ -19,6 +19,7 @@ class Tile extends fw.Entity
         this.posY = y * 128;
     }
 
+    // megfelelő sprite kiválasztása az adott tile-nek
     selectSprite()
     {
         let border = 0x00;
@@ -124,6 +125,8 @@ Tile.bodyDef =
         14 e
         15 f
 */
+
+// itt vannak megadva hogy melyik szomszédossághoz melyik sprite tartozik
 Tile.spriteData =
 {
     0xff: 0x00, 0x00: 0x01, 0x04: 0x02, 0x46: 0x03, 0x67: 0x04, 0x47: 0x05, 0x06: 0x06, 0x27: 0x07,
