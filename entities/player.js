@@ -4,6 +4,8 @@ class Player extends fw.Entity
     constructor(x, y)
     {
         super(x, y);
+        this.subscribeForEvents();
+
         // animáció spritesheetek beállítása
         this.sprite_idleLeft = fw.sprites["sprites/anim/idle/idle.png"];
         this.sprite_idleRight = fw.sprites["sprites/anim/idle/idle_right.png"];

@@ -4,6 +4,7 @@ class Enemy extends fw.Entity
     constructor(x, y, type)
     {
         super(x, y);
+        this.subscribeForEvents();
 
         // megfelelő spritesheetek kiválasztása
         this.sprite_idleLeft = fw.sprites["sprites/" + type + "/idle/idle.png"];

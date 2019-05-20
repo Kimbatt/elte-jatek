@@ -31,7 +31,10 @@ fw.Entity = class Entity
         this.y = y;
         this.width = width;
         this.height = height;
-
+    }
+    
+    subscribeForEvents()
+    {
         for (let ev in this.constructor.events)
             fw.Subscribe(this.constructor.events[ev], this);
     }
@@ -216,10 +219,9 @@ fw.LoadLevel = function(level)
 
     // pálya feldolgozása
     let tilesRows = levels[level].split("\n");
-    let tilemap = [];
+    let tilemap = {};
     for (let i = 0; i < tilesRows.length; ++i)
     {
-        let currentTileRow = [];
         let currentRow = tilesRows[i];
         for (let j = 0; j < currentRow.length; ++j)
         {
@@ -227,7 +229,7 @@ fw.LoadLevel = function(level)
             switch (char)
             {
                 case "x":
-                    currentTileRow[j] = new Tile(j, i);
+                    tilemap[j + " " + i] = new Tile(j, i, fw.sprites["sprites/tilemap.png"]);
                     break;
                 case "d":
                     new Door(j, i);
@@ -240,19 +242,12 @@ fw.LoadLevel = function(level)
                     break;
             }
         }
-
-        tilemap[i] = currentTileRow;
     }
 
-    Tile.tilemap = tilemap;
-    for (let i = 0; i < tilemap.length; ++i)
+    for (let coord in tilemap)
     {
-        let currentRow = tilemap[i];
-        for (let j = 0; j < currentRow.length; ++j)
-        {
-            if (currentRow[j])
-                currentRow[j].selectSprite();
-        }
+        const currentTile = tilemap[coord];
+        currentTile.selectSprite(tilemap);
     }
 
     fw.currentLevel = level;

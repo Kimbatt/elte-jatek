@@ -1,17 +1,20 @@
 
 class Tile extends fw.Entity
 {
-    constructor(x, y)
+    constructor(x, y, spritesheet, isLevelEditor)
     {
         super(x, y);
-        this.sprite = fw.sprites["sprites/tilemap.png"];
+        if (!isLevelEditor)
+        {
+            this.subscribeForEvents();
 
-        this.body = fw.world.createBody(Tile.bodyDef);
-        this.body.createFixture(Tile.fixtureDef);
-        this.body.setPosition(planck.Vec2(x / PTM * 128, y / PTM * 128));
+            this.body = fw.world.createBody(Tile.bodyDef);
+            this.body.createFixture(Tile.fixtureDef);
+            this.body.setPosition(planck.Vec2(x / PTM * 128, y / PTM * 128));
 
-        this.body.gameobject = this;
-
+            this.body.gameobject = this;
+        }
+        this.sprite = spritesheet;
         this.x = x;
         this.y = y;
 
@@ -20,60 +23,51 @@ class Tile extends fw.Entity
     }
 
     // megfelelő sprite kiválasztása az adott tile-nek
-    selectSprite()
+    selectSprite(tileMap)
     {
         let border = 0x00;
-        let temp;
 
         // top
-        temp = Tile.tilemap[this.y - 1]
-        if (temp && temp[this.x])
+        if (tileMap[this.x + " " + (this.y - 1)])
             border |= 0x01;
             
         // right
-        temp = Tile.tilemap[this.y]
-        if (temp && temp[this.x + 1])
+        if (tileMap[(this.x + 1) + " " + this.y])
             border |= 0x02;
         
         // bottom
-        temp = Tile.tilemap[this.y + 1]
-        if (temp && temp[this.x])
+        if (tileMap[this.x + " " + (this.y + 1)])
             border |= 0x04;
             
         // left
-        temp = Tile.tilemap[this.y]
-        if (temp && temp[this.x - 1])
+        if (tileMap[(this.x - 1) + " " + this.y])
             border |= 0x08;
             
         // topleft
         if ((border & 0x09) === 0x09)
         {
-            temp = Tile.tilemap[this.y - 1]
-            if (temp && temp[this.x - 1])
+            if (tileMap[(this.x - 1) + " " + (this.y - 1)])
                 border |= 0x10;
         }
             
         // topright
         if ((border & 0x03) === 0x03)
         {
-            temp = Tile.tilemap[this.y - 1]
-            if (temp && temp[this.x + 1])
+            if (tileMap[(this.x + 1) + " " + (this.y - 1)])
                 border |= 0x20;
         }
         
         // bottomright
         if ((border & 0x06) === 0x06)
         {
-            temp = Tile.tilemap[this.y + 1]
-            if (temp && temp[this.x + 1])
+            if (tileMap[(this.x + 1) + " " + (this.y + 1)])
                 border |= 0x40;
         }
             
         // bottomleft
         if ((border & 0x0c) === 0x0c)
         {
-            temp = Tile.tilemap[this.y + 1]
-            if (temp && temp[this.x - 1])
+            if (tileMap[(this.x - 1) + " " + (this.y + 1)])
                 border |= 0x80;
         }
         

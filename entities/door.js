@@ -4,6 +4,7 @@ class Door extends fw.Entity
     constructor(x, y)
     {
         super(x, y);
+        this.subscribeForEvents();
         this.sprite = fw.sprites["sprites/door.png"];
 
         this.body = fw.world.createBody(Door.bodyDef);

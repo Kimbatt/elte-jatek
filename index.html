@@ -19,11 +19,9 @@ button
     outline: none;
     padding: 1vh;
     margin: 1vh;
-
-    width: 80vh;
 }
 
-button:hover
+button:enabled:hover
 {
     background: #c0f0ff;
 }
@@ -33,11 +31,21 @@ button:active
     background: #a0a0a0;
 }
 
+button:disabled
+{
+    color: black;
+}
+
 canvas
 {
     position: absolute;
     top: 0px;
     left: 0px;
+}
+
+.button-selected
+{
+    background: #11a7e2;
 }
 
 #level-finished-overlay
@@ -78,14 +86,19 @@ canvas
 <div id="game" style="display: none;">
     <canvas id="background-canvas"></canvas>
     <canvas id="canvas"></canvas>
-    <button style="position: absolute; top: 5px; right: 5px; width: auto; font-size: 30px;" onclick="ExitToMenu()">Exit to menu</button>
+    <button id="exitToMenuButton" style="position: absolute; top: 5px; right: 5px; font-size: 30px; z-index: 1;">Exit to menu</button>
+</div>
+
+<div id="levelEditor" style="display: none; position: absolute; top: 0px; left: 0px;
+    width: calc(100% - 10px); height: calc(4vh + 46px); background: rgba(255, 255, 255, 0.8);
+    padding: 5px;">
+    <button id="levelEditor-moveCamera" class="button-selected" style="font-size: 20px; padding: 5px;" onclick="SelectAction(this)" disabled>Move camera</button>
+    <button id="levelEditor-addTiles" style="font-size: 20px; padding: 5px;" onclick="SelectAction(this)">Add tiles</button>
 </div>
 
 <div id="menu" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-    <button onclick="StartGame()">New game</button>
-    <!--
-        <button>Load game</button>
-    -->
+    <button onclick="StartGame()" style="width: 80vh;">New game</button>
+    <button onclick="OpenLevelEditor()" style="width: 80vh;">Level editor</button>
 </div>
 
 <div id="level-finished-overlay" class="level-finished-overlay-hidden"></div>
@@ -98,6 +111,7 @@ canvas
 <script src="entities/door.js"></script>
 
 <script src="main.js"></script>
+<script src="levelEditor.js"></script>
 </body>
 
 </html>

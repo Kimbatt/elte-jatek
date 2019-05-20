@@ -7,6 +7,7 @@ function StartGame()
 {
     document.getElementById("menu").style.display = "none";
     document.getElementById("game").style.display = "";
+    document.getElementById("exitToMenuButton").onclick = ExitToMenu;
 
     fw.LoadImages([
         "sprites/anim/idle/idle.png", "sprites/anim/idle/idle_right.png",
