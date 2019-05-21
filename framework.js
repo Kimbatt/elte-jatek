@@ -188,6 +188,7 @@ let backgroundPattern;
 fw.Start = function()
 {
     backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
+    document.getElementById("loading-overlay").style.display = "none";
 
     fw.LoadLevel(0);
 }
@@ -240,6 +241,9 @@ fw.LoadLevel = function(level)
                 case "z":
                     new Enemy(j, i, "zombie");
                     break;
+                case "p":
+                    fw.Player.setPosition(j * 128 - 64, (i - 1) * 128);
+                    break;
             }
         }
     }
@@ -251,7 +255,6 @@ fw.LoadLevel = function(level)
     }
 
     fw.currentLevel = level;
-    fw.Player.setPosition(playerStartPositions[level][0], playerStartPositions[level][1]);
 
     fw.Update();
 }

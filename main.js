@@ -7,6 +7,7 @@ function StartGame()
 {
     document.getElementById("menu").style.display = "none";
     document.getElementById("game").style.display = "";
+    document.getElementById("loading-overlay").style.display = "flex";
     document.getElementById("exitToMenuButton").onclick = ExitToMenu;
 
     fw.LoadImages([
@@ -30,7 +31,7 @@ function StartGame()
         "sprites/zombie/idle/idle.png", "sprites/zombie/idle/idle_right.png",
         "sprites/zombie/walk/walk.png", "sprites/zombie/walk/walk_right.png",
     ]);
-}      
+}
 
 function ExitToMenu()
 {
@@ -53,7 +54,7 @@ xxxxxxxxx                                                 xxxxx
 xxxxxxxxx                                                 xxxxx
 xxxxxxxxx                                                xxxxxx
 xxxxxxxxxx                      xx                     xxxxxxxx
-xxxxxxxxxx                   x         s                  xxxxx
+xxxxxxxxxx p                 x         s                  xxxxx
 xxxxxxxxxxxxxx     s   xxxx         xxxxx               x xxxxx
 xxxxxxxxxxx  x    xxxx                  xxx x x         xxxxxxx
 xxxxxxxxxxx     xxxxxxxxxxxxxxxx                          xxxxx
@@ -92,7 +93,7 @@ xxxxxxxxxxx    d   xxxxxxxxxxxxxxxxxx          xxx     xxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxx          xxxxx      xxxxx    xxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    xxxxxxxxxxxxxxx
 xx    x                                         x   x               xx
-xx    x                                         x   x                xx
+xxp   x                                         x   x                xx
 xxxx  x                                         x  xx   xxxxxxxx      x
 xx    x              xxxxx            x         x       xx     x     xx
 xx    x             xx              xxxxx       xx  s    x     xxx   x
@@ -121,7 +122,7 @@ xxxxxxx     xxxxxxxxxx    xxxxxxxxxxxx
 xxxxxxx     xxxxxxx       xxxxxxxx
 xxxxxx      xxxxxxx    xxxxxxxxxxx
 xxxxxx    xxxxxxxxx   xxxxxxxxxxxx                   xxxx
-xxxxxx   xxxxxxxxxx   xxxxxxxxxxxx                   xxxx
+xxxxxx   xxxxxxxxxx p xxxxxxxxxxxx                   xxxx
 xxxxxx   xxxxxxxxxxxxxxxxxxxxxxxxx                   xxxxx
 xxxxxx       xxxxxxxxxxxxxxxxxxx                     xxxxx
 xxxxxxx      xxxxxxxxxxxxxxxxxxx                     xxxxxxx
@@ -148,11 +149,11 @@ xxxxxxx              xxxxxxxxxxxxxxxx
   xxxxxxxxxxxxxxxxxxxxxxxx
    xxxxxxxxxxxxxxxxxx`
 ];
-
+/*
 // a játékos kiinduló pozíciója az adott pályákon
 const playerStartPositions =
 [
     [1400, 1280],
     [200, 1100],
     [2400, 2300],
-];
+];*/

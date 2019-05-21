@@ -1,33 +1,37 @@
 
 class Enemy extends fw.Entity
 {
-    constructor(x, y, type)
+    constructor(x, y, type, isLevelEditor)
     {
         super(x, y);
-        this.subscribeForEvents();
+
+        if (!isLevelEditor)
+        {
+            this.subscribeForEvents();
+
+            this.animationFrameIndex = 0;
+            this.animationFrameCount = 0;
+            this.animationType = "idle";
+            this.speedY = 10;
+            this.lastDirection = (Math.random() < 0.5) ? 1 : -1;
+
+            this.body = fw.world.createBody(Enemy.bodyDef);
+            this.body.createFixture(Enemy.fixtureDef);
+            this.body.setPosition(planck.Vec2(x / PTM * 128, (y - 1) / PTM * 128));
+
+            this.body.gameobject = this;
+
+            // ha megütik akkor villog egy ideig
+            this.flash = false;
+
+            this.health = 3;
+        }
 
         // megfelelő spritesheetek kiválasztása
         this.sprite_idleLeft = fw.sprites["sprites/" + type + "/idle/idle.png"];
         this.sprite_idleRight = fw.sprites["sprites/" + type + "/idle/idle_right.png"];
         this.sprite_dieLeft = fw.sprites["sprites/" + type + "/die/die.png"];
         this.sprite_dieRight = fw.sprites["sprites/" + type + "/die/die_right.png"];
-
-        this.animationFrameIndex = 0;
-        this.animationFrameCount = 0;
-        this.animationType = "idle";
-        this.speedY = 10;
-        this.lastDirection = (Math.random() < 0.5) ? 1 : -1;
-
-        this.body = fw.world.createBody(Enemy.bodyDef);
-        this.body.createFixture(Enemy.fixtureDef);
-        this.body.setPosition(planck.Vec2(x / PTM * 128, (y - 1) / PTM * 128));
-
-        this.body.gameobject = this;
-
-        // ha megütik akkor villog egy ideig
-        this.flash = false;
-
-        this.health = 3;
     }
 
     draw()
