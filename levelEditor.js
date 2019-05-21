@@ -472,6 +472,77 @@ levelEditor.Update = function()
         window.requestAnimationFrame(levelEditor.Update);
 }
 
+levelEditor.GenerateLevelString = function()
+{
+    if (!levelEditor.levelData.door || !levelEditor.levelData.player)
+        return null;
+
+    // find max and min values for x and y
+    let maxX = -Infinity, minX = Infinity, maxY = -Infinity, minY = Infinity;
+    function Check(x, y)
+    {
+        if (x > maxX)
+            maxX = x;
+
+        if (x < minX)
+            minX = x;
+
+        if (y > maxY)
+            maxY = y;
+
+        if (y < minY)
+            minY = y;
+    }
+
+    const data = {};
+
+    // tiles
+    for (let coordStr in levelEditor.levelData.tiles)
+    {
+        const coord = coordStr.split(" ");
+        const posX = Number(coord[0]);
+        const posY = Number(coord[1]);
+        Check(posX, posY);
+        data[coordStr] = "x";
+    }
+
+    // enemies
+    for (let coordStr in levelEditor.levelData.enemies)
+    {
+        if (levelEditor.levelData.enemies[coordStr] instanceof Enemy)
+        {
+            const coord = coordStr.split(" ");
+            const posX = Number(coord[0]);
+            const posY = Number(coord[1]);
+            Check(posX, posY);
+            data[coordStr] = "s";
+        }
+    }
+
+    // player
+    Check(levelEditor.levelData.player.x, levelEditor.levelData.player.y);
+    data[levelEditor.levelData.player.x + " " + levelEditor.levelData.player.y] = "p";
+
+    // door
+    Check(levelEditor.levelData.door.x, levelEditor.levelData.door.y);
+    data[levelEditor.levelData.door.x + " " + levelEditor.levelData.door.y] = "d";
+
+    if (minX === Infinity || maxX === -Infinity || minY === Infinity || maxY === -Infinity)
+        return null;
+
+    const rows = new Array(maxY - minY);
+    for (let y = minY; y <= maxY; ++y)
+    {
+        const currentRow = new Array(maxX - minX);
+        for (let x = minX; x <= maxX; ++x)
+            currentRow[x - minX] = data[x + " " + y] || " ";
+
+        rows[y - minY] = currentRow.join("");
+    }
+
+    return rows.join("\n");
+}
+
 levelEditor.ExitToMenu = function()
 {
     levelEditorRunning = false;
