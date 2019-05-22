@@ -109,6 +109,9 @@ canvas
     user-select: none;
     font-size: 20vh;
 
+    zoom: calc(var(--pixelratio) * 100%);
+    z-index: 2;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -172,6 +175,7 @@ canvas
     <canvas id="background-canvas"></canvas>
     <canvas id="canvas"></canvas>
     <button id="exitToMenuButton" style="position: absolute; top: 5px; right: 5px; font-size: 30px; z-index: 1;">Exit to menu</button>
+    <img id="attackButton" src="sprites/sword-button.svg" style="height: 15em; display: none; z-index: 1; position: fixed; right: 5vh; bottom: 5vh; border: 0px; padding: 0px; margin: 0px;">
 </div>
 
 <div id="levelEditor" style="display: none; position: fixed; top: 0px; left: 0px;
@@ -191,19 +195,25 @@ canvas
     <button id="levelEditor-play" style="position: absolute; right: 240px; top: 5px; font-size: 30px;">Play</button>
 </div>
 
-<div id="menu" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+<div id="menu" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <button onclick="StartGame()" style="width: 80vh;">New game</button>
     <button onclick="OpenLevelEditor()" style="width: 80vh;">Level editor</button>
 </div>
 
 <div id="level-finished-overlay" class="level-finished-overlay-hidden"></div>
-<div id="loading-overlay" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center;">
+<div id="loading-overlay" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh;
+    display: none; flex-direction: column; justify-content: center; align-items: center;">
     <div id="loading_text" style="font-size: 20vh; color: white;">Loading
         <svg id="loading_spinner_outer" viewbox="0 0 50 50">
             <circle id="loading_spinner_inner" cx="25" cy="25" r="20" fill="none" stroke-width="5" stroke-linecap="round" stroke="white"></circle>
         </svg>
     </div>
 </div>
+
+<script>
+    const isTouchDevice = (window.ontouchstart !== undefined);
+</script>
 
 <script src="planck.js"></script>
 <script src="framework.js"></script>

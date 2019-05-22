@@ -1,5 +1,4 @@
 
-
 window.oncontextmenu = () => false;
 
 // ez a függvény indítja a játékot, a new game gombra kattintva

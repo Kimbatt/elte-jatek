@@ -53,11 +53,21 @@ function OpenLevelEditor()
         img.src = imageName;
     }
 
-    window.addEventListener("mousedown", levelEditor.MouseDown);
-    window.addEventListener("mouseup", levelEditor.MouseUp);
-    window.addEventListener("mousemove", levelEditor.MouseMove);
+    if (isTouchDevice)
+    {
+        window.addEventListener("touchstart", levelEditor.MouseDown);
+        window.addEventListener("touchend", levelEditor.MouseUp);
+        window.addEventListener("touchmove", levelEditor.MouseMove);
+    }
+    else
+    {
+        window.addEventListener("mousedown", levelEditor.MouseDown);
+        window.addEventListener("mouseup", levelEditor.MouseUp);
+        window.addEventListener("mousemove", levelEditor.MouseMove);
+    }
     
     document.getElementById("levelEditor-play").onclick = levelEditor.PlayLevel;
+    document.getElementById("attackButton").style.display = "none";
 
     levelEditorRunning = true;
 }
@@ -81,15 +91,22 @@ levelEditor.MouseDown = function(ev)
     if (levelEditorPlaying)
         return;
 
-    const mouseIsOverThisElement = document.elementFromPoint(mousePositionX, mousePositionY);
-    if (!mouseIsOverThisElement || mouseIsOverThisElement.tagName !== "CANVAS")
+    if (isTouchDevice)
+    {
+        ev = ev.touches[0];
+
+        mousePositionX = ev.clientX / ratio;
+        mousePositionY = ev.clientY / ratio;
+    }
+
+    if (ev.target && ev.target.tagName !== "CANVAS")
         return;
 
-    if (ev.button === 0)
+    if (isTouchDevice || ev.button === 0)
         mouseButtonDown = true;
     else
         return;
-    
+
     switch (levelEditorCurrentAction)
     {
         case "levelEditor-deleteTiles":
@@ -115,14 +132,20 @@ levelEditor.MouseDown = function(ev)
 
 levelEditor.MouseUp = function(ev)
 {
-    if (ev.button === 0)
+    if (isTouchDevice || ev.button === 0)
         mouseButtonDown = false;
 }
 
 levelEditor.MouseMove = function(ev)
 {
-    mousePositionX = ev.clientX;
-    mousePositionY = ev.clientY;
+    if (isTouchDevice)
+        ev = ev.touches[0];
+
+    const prevX = mousePositionX, prevY = mousePositionY;
+    mousePositionX = ev.clientX / ratio;
+    mousePositionY = ev.clientY / ratio;
+
+    const movementX = mousePositionX - prevX, movementY = mousePositionY - prevY;
 
     if (levelEditorPlaying)
         return;
@@ -133,8 +156,8 @@ levelEditor.MouseMove = function(ev)
     switch (levelEditorCurrentAction)
     {
         case "levelEditor-moveCamera":
-            levelEditor.cameraPositionX -= ev.movementX;
-            levelEditor.cameraPositionY -= ev.movementY;
+            levelEditor.cameraPositionX -= movementX;
+            levelEditor.cameraPositionY -= movementY;
             break;
         case "levelEditor-deleteTiles":
             levelEditor.SetTileAtMousePosition(false);
@@ -609,6 +632,7 @@ levelEditor.StopPlaying = function()
     playButton.innerText = "Play";
 
     document.getElementById("exitToMenuButton").style.display = "";
+    document.getElementById("attackButton").style.display = "none";
     
     levelEditor.Update();
 }

@@ -7,13 +7,19 @@ const ctx = canvas.getContext("2d");
 const backgroundCanvas = document.getElementById("background-canvas");
 const backgroundCtx = backgroundCanvas.getContext("2d");
 
+const targetWindowHeight = 960;
+let ratio;
 fw.WindowResized = function()
 {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    ratio = window.innerHeight / targetWindowHeight;
+    document.documentElement.style.setProperty("--pixelratio", window.devicePixelRatio);
+    document.body.style.zoom = (ratio * 100) + "%";
+    const w = window.innerWidth / ratio;
+    canvas.width = w;
+    canvas.height = targetWindowHeight;
     
-    backgroundCanvas.width = window.innerWidth;
-    backgroundCanvas.height = window.innerHeight;
+    backgroundCanvas.width = w;
+    backgroundCanvas.height = targetWindowHeight;
 }
 
 window.addEventListener("load", fw.WindowResized);
@@ -180,8 +186,87 @@ fw.KeyStateChanged = function(key, state)
     }
 }
 
-window.addEventListener("keydown", event => fw.KeyStateChanged(event.code, true));
-window.addEventListener("keyup", event => fw.KeyStateChanged(event.code, false));
+if (isTouchDevice)
+{
+    const touchChanged = function(ev)
+    {
+        fw.keyMap.up = false;
+        fw.keyMap.left = false;
+        fw.keyMap.down = false;
+        fw.keyMap.right = false;
+
+        if (ev.target && ev.target.tagName !== "CANVAS")
+            return;
+
+        const posX = ev.clientX, posY = ev.clientY;
+        const w = window.innerWidth, h = window.innerHeight;
+
+        /*
+        
+        screen:
+
+        +-----------------------+
+        | jump  | jump  | jump  |
+        | left  |  up   | right |
+        |       |       |       |
+        +-----------------------+
+        |           |           |
+        |  go left  |  go right |
+        |           |           |
+        +-----------------------+
+        
+        */
+        if (posY > h / 2) // képernyő alja
+        {
+            if (posX < w / 2)
+                fw.keyMap.left = true;
+            else
+                fw.keyMap.right = true;
+        }
+        else
+        {
+            fw.keyMap.up = true;
+            if (posX < w / 3)
+                fw.keyMap.left = true;
+            else if (posX > w / 3 * 2)
+                fw.keyMap.right = true;
+        }
+    };
+
+    window.addEventListener("touchstart", function(ev)
+    {
+        touchChanged(ev.touches[0]);
+    });
+
+    window.addEventListener("touchend", function(ev)
+    {
+        fw.keyMap.up = false;
+        fw.keyMap.left = false;
+        fw.keyMap.down = false;
+        fw.keyMap.right = false;
+    });
+
+    window.addEventListener("touchmove", function(ev)
+    {
+        touchChanged(ev.touches[0]);
+    });
+
+
+    document.getElementById("attackButton").ontouchstart = function()
+    {
+        fw.keyMap.space = true;
+    };
+
+    document.getElementById("attackButton").ontouchend = function()
+    {
+        fw.keyMap.space = false;
+    };
+}
+else
+{
+    window.addEventListener("keydown", event => fw.KeyStateChanged(event.code, true));
+    window.addEventListener("keyup", event => fw.KeyStateChanged(event.code, false));
+}
 
 let backgroundPattern;
 
@@ -249,6 +334,9 @@ fw.LoadLevel = function(level)
 
     if (typeof level === "number")
         fw.currentLevel = level;
+
+    if (isTouchDevice)
+        document.getElementById("attackButton").style.display = "";
 
     fw.Update();
 }
@@ -381,6 +469,7 @@ fw.FinishLevel = function()
             playButton.innerText = "Play";
 
             document.getElementById("exitToMenuButton").style.display = "";
+            document.getElementById("attackButton").style.display = "none";
 
             levelEditor.Update();
         }, 2000);
