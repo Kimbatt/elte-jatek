@@ -5,8 +5,7 @@
 - a space gombbal lehet támadni, az ellenségeknek 3 élete van (az ellenségek jelenleg nem csinálnak semmit, csak állnak)
 - 3 pálya van, egy pálya végére érve jön a következő pálya
 
-Tervek a második beadandó részhez (tehát ezek nincsenek még megcsinálva):
-- véletlenszerűen generált pályák (talán pályaszerkesztő is)
-- az ellenségeknek legyen animációja, mozogjanak és támadjanak vissza
-- a játékosnak is legyen életereje
-- stb.
+## Második beadandó rész
+- pályaszerkesztő
+- mobil alkalmazás létrehozható a mobile mappában található információk alapján
+- asztali alkalmazás (electron): `electron index.html` (electron telepítése, ha nincs: `npm install -g electron@latest`
