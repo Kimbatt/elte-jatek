@@ -577,7 +577,7 @@ levelEditor.PlayLevel = function()
 {
     if (levelEditorPlaying)
         return;
-        
+
     const result = levelEditor.GenerateLevelString();
     if (result.error)
     {
@@ -605,6 +605,7 @@ levelEditor.PlayLevel = function()
     levelEditorRunning = false;
     
     document.getElementById("levelEditor-buttons").style.display = "none";
+    document.getElementById("loading-overlay").style.display = "flex";
     
     fw.LoadRequiredImages(() =>
     {
@@ -614,6 +615,7 @@ levelEditor.PlayLevel = function()
         playButton.blur();
 
         backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
+        document.getElementById("loading-overlay").style.display = "none";
         fw.LoadLevel(result.data);
     });
 }
