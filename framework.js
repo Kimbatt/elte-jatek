@@ -190,13 +190,20 @@ fw.Start = function()
     backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
     document.getElementById("loading-overlay").style.display = "none";
 
-    fw.LoadLevel(0);
+    if (!levelEditorPlaying)
+        fw.LoadLevel(levels[0]);
 }
 
 fw.currentLevel = 0;
 // pálya betöltése
 fw.LoadLevel = function(level)
 {
+    let levelStr;
+    if (typeof level === "number")
+        levelStr = levels[level];
+    else
+        levelStr = level;
+
     fw.run = true;
     fw.Entity.ID = 0;
     fw.Entities = {};
@@ -204,22 +211,8 @@ fw.LoadLevel = function(level)
     fw.InitWorld();
     fw.Player = new Player();
 
-    // régi tilemap törlése, ha van
-    if (Tile.tilemap)
-    {
-        for (let i = 0; i < Tile.tilemap.length; ++i)
-        {
-            let currentRow = Tile.tilemap[i];
-            for (let j = 0; j < currentRow.length; ++j)
-            {
-                if (currentRow[j])
-                    fw.world.destroyBody(currentRow[j]);
-            }
-        }
-    }
-
     // pálya feldolgozása
-    let tilesRows = levels[level].split("\n");
+    let tilesRows = levelStr.split("\n");
     let tilemap = {};
     for (let i = 0; i < tilesRows.length; ++i)
     {
@@ -254,7 +247,8 @@ fw.LoadLevel = function(level)
         currentTile.selectSprite(tilemap);
     }
 
-    fw.currentLevel = level;
+    if (typeof level === "number")
+        fw.currentLevel = level;
 
     fw.Update();
 }
@@ -262,7 +256,7 @@ fw.LoadLevel = function(level)
 fw.ImageLoaded = function()
 {
     if (++fw.loadedCount == fw.targetLoadCount)
-        fw.Start();
+        fw.AllImagesLoadedCallback();
 }
 
 fw.sprites = {};
@@ -271,8 +265,9 @@ fw.targetLoadCount = 0;
 fw.loadedCount = 0;
 
 // képek betöltése, ha az összes kép betöltődött, akkor indul a játék
-fw.LoadImages = function(images)
+fw.LoadImages = function(images, callback)
 {
+    fw.AllImagesLoadedCallback = callback
     fw.targetLoadCount += images.length;
     for (let i = 0; i < images.length; ++i)
     {
@@ -283,6 +278,31 @@ fw.LoadImages = function(images)
 
         fw.sprites[imageName] = img;
     }
+}
+
+fw.LoadRequiredImages = function(callback)
+{
+    fw.LoadImages([
+        "sprites/anim/idle/idle.png", "sprites/anim/idle/idle_right.png",
+        "sprites/anim/run/run.png", "sprites/anim/run/run_right.png",
+        "sprites/tilemap.png",
+        "sprites/background.jpg",
+        "sprites/anim/jump/jump.png", "sprites/anim/jump/jump_right.png",
+        "sprites/anim/jump/fall.png", "sprites/anim/jump/fall_right.png",
+        "sprites/anim/jump/land.png", "sprites/anim/jump/land_right.png",
+        "sprites/door.png",
+        "sprites/anim/attack/attack.png", "sprites/anim/attack/attack_right.png",
+        "sprites/skeleton/appear/appear.png", "sprites/skeleton/appear/appear_right.png",
+        "sprites/skeleton/attack/attack.png", "sprites/skeleton/attack/attack_right.png",
+        "sprites/skeleton/die/die.png", "sprites/skeleton/die/die_right.png",
+        "sprites/skeleton/idle/idle.png", "sprites/skeleton/idle/idle_right.png",
+        "sprites/skeleton/walk/walk.png", "sprites/skeleton/walk/walk_right.png",
+        "sprites/zombie/appear/appear.png", "sprites/zombie/appear/appear_right.png",
+        "sprites/zombie/attack/attack.png", "sprites/zombie/attack/attack_right.png",
+        "sprites/zombie/die/die.png", "sprites/zombie/die/die_right.png",
+        "sprites/zombie/idle/idle.png", "sprites/zombie/idle/idle_right.png",
+        "sprites/zombie/walk/walk.png", "sprites/zombie/walk/walk_right.png",
+    ], callback);
 }
 
 fw.Box = function(w, h)
@@ -343,28 +363,52 @@ fw.FinishLevel = function()
         return;
     
     fw.Shutdown();
-    let overlayDiv = document.getElementById("level-finished-overlay");
-    ++fw.currentLevel;
-    if (fw.currentLevel < 3)
+    const overlayDiv = document.getElementById("level-finished-overlay");
+
+    if (levelEditorPlaying)
     {
-        // ha van még pálya
         overlayDiv.innerText = "Level complete!";
         window.setTimeout(function()
         {
             overlayDiv.className = "level-finished-overlay-hidden";
-            fw.LoadLevel(fw.currentLevel);
+            levelEditorPlaying = false;
+            levelEditorRunning = true;
+            
+            document.getElementById("levelEditor-buttons").style.display = "";
+            
+            const playButton = document.getElementById("levelEditor-play");
+            playButton.onclick = levelEditor.PlayLevel;
+            playButton.innerText = "Play";
+
+            document.getElementById("exitToMenuButton").style.display = "";
+
+            levelEditor.Update();
         }, 2000);
     }
     else
     {
-        // ha az összes pályát megcsináltuk
-        overlayDiv.innerText = "All levels complete!";
-        window.setTimeout(function()
+        ++fw.currentLevel;
+        if (fw.currentLevel < 3)
         {
-            document.getElementById("menu").style.display = "flex";
-            document.getElementById("game").style.display = "none";
-            overlayDiv.className = "level-finished-overlay-hidden";
-        }, 2000);
+            // ha van még pálya
+            overlayDiv.innerText = "Level complete!";
+            window.setTimeout(function()
+            {
+                overlayDiv.className = "level-finished-overlay-hidden";
+                fw.LoadLevel(levels[fw.currentLevel]);
+            }, 2000);
+        }
+        else
+        {
+            // ha az összes pályát megcsináltuk
+            overlayDiv.innerText = "All levels complete!";
+            window.setTimeout(function()
+            {
+                document.getElementById("menu").style.display = "flex";
+                document.getElementById("game").style.display = "none";
+                overlayDiv.className = "level-finished-overlay-hidden";
+            }, 2000);
+        }
     }
 
     overlayDiv.className = "level-finished-overlay-visible";

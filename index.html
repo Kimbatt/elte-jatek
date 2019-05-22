@@ -136,6 +136,34 @@ canvas
     padding: 4px;
 }
 
+.level-editor-error-anim
+{
+    animation: show_error 3s linear forwards;
+}
+
+@keyframes show_error
+{
+    0%
+    {
+        opacity: 0;
+    }
+
+    10%
+    {
+        opacity: 1;
+    }
+
+    90%
+    {
+        opacity: 1;
+    }
+
+    100%
+    {
+        opacity: 0;
+    }
+}
+
 </style>
 </head>
 
@@ -148,14 +176,19 @@ canvas
 
 <div id="levelEditor" style="display: none; position: fixed; top: 0px; left: 0px;
     width: 100%; height: 86px; background: rgba(255, 255, 255, 0.8);">
-    <button id="levelEditor-moveCamera" class="button-selected level-editor-button" onclick="SelectAction(this)" disabled>Move camera</button>
-    <button id="levelEditor-addTiles" class="level-editor-button" onclick="SelectAction(this)">Add tiles</button>
-    <button id="levelEditor-deleteTiles" class="level-editor-button" onclick="SelectAction(this)">Delete tiles</button>
-    <br>
-    <button id="levelEditor-setPlayerPosition" class="level-editor-button" onclick="SelectAction(this)">Set player position</button>
-    <button id="levelEditor-setExitPosition" class="level-editor-button" onclick="SelectAction(this)">Set exit position</button>
-    <button id="levelEditor-addEnemy" class="level-editor-button" onclick="SelectAction(this)">Add enemy</button>
-    <button id="levelEditor-deleteEnemy" class="level-editor-button" onclick="SelectAction(this)">Delete enemy</button>
+    <div id="levelEditor-buttons">
+        <button id="levelEditor-moveCamera" class="button-selected level-editor-button" onclick="SelectAction(this)" disabled>Move camera</button>
+        <button id="levelEditor-addTiles" class="level-editor-button" onclick="SelectAction(this)">Add tiles</button>
+        <button id="levelEditor-deleteTiles" class="level-editor-button" onclick="SelectAction(this)">Delete tiles</button>
+        <br>
+        <button id="levelEditor-setPlayerPosition" class="level-editor-button" onclick="SelectAction(this)">Set player position</button>
+        <button id="levelEditor-setExitPosition" class="level-editor-button" onclick="SelectAction(this)">Set exit position</button>
+        <button id="levelEditor-addEnemy" class="level-editor-button" onclick="SelectAction(this)">Add enemy</button>
+        <button id="levelEditor-deleteEnemy" class="level-editor-button" onclick="SelectAction(this)">Delete enemy</button>
+    </div>
+    <div id="levelEditor-errorMessage" style="display: table; position: absolute; font-size: 50px; background: rgba(0, 0, 0, 0.8); color: red; border-radius: 10px;
+        padding: 10px; left: 50vw; top: 50vh; transform-origin: 50% 50%; transform: translate(-50%, -50%); opacity: 0; display: none;">Error</div>
+    <button id="levelEditor-play" style="position: absolute; right: 240px; top: 5px; font-size: 30px;">Play</button>
 </div>
 
 <div id="menu" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">

@@ -396,25 +396,23 @@ Player.fixtureDef =
 {
     shape: Player.shape,
     restitution: 0,
-    friction: 0,
-    fixedRotation: true
+    friction: 0
 }
 
 Player.attackAreaFixtureDefLeft =
 {
     shape: Player.attackAreaLeft,
-    isSensor: true,
-    fixedRotation: true
+    isSensor: true
 }
 
 Player.attackAreaFixtureDefRight =
 {
     shape: Player.attackAreaRight,
-    isSensor: true,
-    fixedRotation: true
+    isSensor: true
 }
 
 Player.bodyDef =
 {
-    type: "dynamic"
+    type: "dynamic",
+    fixedRotation: true
 }

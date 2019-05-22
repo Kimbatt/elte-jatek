@@ -172,13 +172,13 @@ Enemy.fixtureDef =
     shape: Enemy.shape,
     restitution: 0,
     friction: 1,
-    density: 100,
-    fixedRotation: true
+    density: 100
 }
 
 Enemy.bodyDef =
 {
-    type: "dynamic"
+    type: "dynamic",
+    fixedRotation: true
 }
 
 const hitFlashInterval = 5;

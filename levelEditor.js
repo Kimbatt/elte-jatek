@@ -2,6 +2,7 @@
 const levelEditor = {};
 let levelEditorLoading = false;
 let levelEditorRunning = false;
+let levelEditorPlaying = false;
 let levelEditorCurrentAction = "levelEditor-moveCamera";
 
 function OpenLevelEditor()
@@ -55,6 +56,8 @@ function OpenLevelEditor()
     window.addEventListener("mousedown", levelEditor.MouseDown);
     window.addEventListener("mouseup", levelEditor.MouseUp);
     window.addEventListener("mousemove", levelEditor.MouseMove);
+    
+    document.getElementById("levelEditor-play").onclick = levelEditor.PlayLevel;
 
     levelEditorRunning = true;
 }
@@ -75,6 +78,9 @@ let mouseButtonDown = false;
 let mousePositionX = 0, mousePositionY = 0;
 levelEditor.MouseDown = function(ev)
 {
+    if (levelEditorPlaying)
+        return;
+
     const mouseIsOverThisElement = document.elementFromPoint(mousePositionX, mousePositionY);
     if (!mouseIsOverThisElement || mouseIsOverThisElement.tagName !== "CANVAS")
         return;
@@ -117,6 +123,9 @@ levelEditor.MouseMove = function(ev)
 {
     mousePositionX = ev.clientX;
     mousePositionY = ev.clientY;
+
+    if (levelEditorPlaying)
+        return;
 
     if (!mouseButtonDown)
         return;
@@ -475,7 +484,7 @@ levelEditor.Update = function()
 levelEditor.GenerateLevelString = function()
 {
     if (!levelEditor.levelData.door || !levelEditor.levelData.player)
-        return null;
+        return { error: "The player position and the exit position must be set." };
 
     // find max and min values for x and y
     let maxX = -Infinity, minX = Infinity, maxY = -Infinity, minY = Infinity;
@@ -527,9 +536,6 @@ levelEditor.GenerateLevelString = function()
     Check(levelEditor.levelData.door.x, levelEditor.levelData.door.y);
     data[levelEditor.levelData.door.x + " " + levelEditor.levelData.door.y] = "d";
 
-    if (minX === Infinity || maxX === -Infinity || minY === Infinity || maxY === -Infinity)
-        return null;
-
     const rows = new Array(maxY - minY);
     for (let y = minY; y <= maxY; ++y)
     {
@@ -537,10 +543,74 @@ levelEditor.GenerateLevelString = function()
         for (let x = minX; x <= maxX; ++x)
             currentRow[x - minX] = data[x + " " + y] || " ";
 
-        rows[y - minY] = currentRow.join("");
+        rows[y - minY] = currentRow.join("").trimEnd();
     }
 
-    return rows.join("\n");
+    return { error: null, data: rows.join("\n") };
+}
+
+let levelEditorErrorTextShowing = false;
+levelEditor.PlayLevel = function()
+{
+    if (levelEditorPlaying)
+        return;
+        
+    const result = levelEditor.GenerateLevelString();
+    if (result.error)
+    {
+        if (!levelEditorErrorTextShowing)
+        {
+            levelEditorErrorTextShowing = true;
+            const errorDiv = document.getElementById("levelEditor-errorMessage");
+            errorDiv.innerText = result.error;
+            errorDiv.style.display = "";
+            errorDiv.className = "level-editor-error-anim";
+            window.setTimeout(() =>
+            {
+                levelEditorErrorTextShowing = false;
+                errorDiv.style.display = "none";
+                errorDiv.className = "";
+            }, 3000);
+        }
+
+        return;
+    }
+
+    document.getElementById("exitToMenuButton").style.display = "none";
+
+    levelEditorPlaying = true;
+    levelEditorRunning = false;
+    
+    document.getElementById("levelEditor-buttons").style.display = "none";
+    
+    fw.LoadRequiredImages(() =>
+    {
+        const playButton = document.getElementById("levelEditor-play");
+        playButton.onclick = levelEditor.StopPlaying;
+        playButton.innerText = "Stop";
+        playButton.blur();
+
+        backgroundPattern = ctx.createPattern(fw.sprites["sprites/background.jpg"], "repeat");
+        fw.LoadLevel(result.data);
+    });
+}
+
+levelEditor.StopPlaying = function()
+{
+    fw.Shutdown();
+
+    levelEditorPlaying = false;
+    levelEditorRunning = true;
+    
+    document.getElementById("levelEditor-buttons").style.display = "";
+    
+    const playButton = document.getElementById("levelEditor-play");
+    playButton.onclick = levelEditor.PlayLevel;
+    playButton.innerText = "Play";
+
+    document.getElementById("exitToMenuButton").style.display = "";
+    
+    levelEditor.Update();
 }
 
 levelEditor.ExitToMenu = function()
